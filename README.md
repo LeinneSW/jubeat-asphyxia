@@ -9,3 +9,6 @@ Jubeat Plugin for Asphyxia Core
 # Versions
 - V1.0 (2023/09/21)
 Now support CZE Ave.
+
+- V2.0 (2025/02/13)
+Now fix the missing asset issue in 1127

@@ -1,22 +1,80 @@
 import {emoList, shopList, FestoCourse, courseCategories} from "../static/data"
 
+
+function initializeArray(
+  numberSize: number,
+  disableArray: (number | [number, number])[]
+): number[] {
+  if (numberSize <= 0 || !Number.isInteger(numberSize)) {
+    throw new Error('numberSize must be a positive integer');
+  }
+  if (!Array.isArray(disableArray)) {
+    throw new Error('disableArray must be an array');
+  }
+
+  // Initialize array with all bits set to 1
+  const resultArray = new Array(numberSize).fill(-1);
+
+  for (let i = 0; i < disableArray.length; i++) {
+    const item = disableArray[i];
+    if (Array.isArray(item)) {
+      const [start, end] = item;
+      if (start < 0 || end >= numberSize * 32 || start > end) {
+        throw new Error(`Invalid range in disableArray: [${start}, ${end}]`);
+      }
+      for (let j = start; j < end; j++) {
+        const arrayIndex = Math.floor(j / 32);
+        const bitPosition = j % 32;
+        resultArray[arrayIndex] &= ~(1 << bitPosition);
+      }
+    } else {
+      if (item < 1 || item >= numberSize * 32) {
+        throw new Error(`Invalid item in disableArray: ${item}`);
+      }
+      const arrayIndex = Math.floor(item / 32);
+      const bitPosition = item % 32;
+      resultArray[arrayIndex] &= ~(1 << bitPosition);
+    }
+  }
+
+  return resultArray;
+}
+
+// >=1508 all ave songs
+var pick_up_array = initializeArray(64, [[0, 1508]]);
+var theme_array = initializeArray(16, [9, 10]);
+var marker_array = initializeArray(16, [41, 43]);
+var open_music_array = initializeArray(64, [1262, 1621, 1675]);
+
 /*
-pos_index >= 1508:
-  then all ave songs
-*/
 var pick_up_array = Array(64).fill(-1);
 for(var i=0; i<=46; i++){
   pick_up_array[i] = 0;
 }
 pick_up_array[47] = 17592186044415;
+*/
+/*
+non-avaliable
+song
+90000048 1262
+11000113 1621
+11001007 1675
 
+theme
+0042 41
+0044 43
+
+background
+09 8
+10 9csde
+*/
 module.exports = () => ({
   info: {
-    white_music_list: K.ARRAY("s32", new Array(64).fill(-1)),
-    white_marker_list: K.ARRAY("s32", new Array(16).fill(-1)),
-    white_theme_list: K.ARRAY("s32", new Array(16).fill(-1)),
-    open_music_list: K.ARRAY("s32", new Array(64).fill(-1)),
-    add_default_music_list: K.ARRAY("s32", new Array(64).fill(-1)),
+    white_music_list: K.ARRAY("s32", open_music_array),
+    white_marker_list: K.ARRAY("s32", marker_array),
+    white_theme_list: K.ARRAY("s32", theme_array),
+    open_music_list: K.ARRAY("s32", open_music_array),
+    add_default_music_list: K.ARRAY("s32", open_music_array),
     hot_music_list: K.ARRAY("s32", pick_up_array),
 
     judge_disp: {
@@ -87,6 +145,7 @@ module.exports = () => ({
       },
     },
     mynews: {},
+    /*
     course_list: {
       course: FestoCourse.map((course, i) =>
         K.ATTR(
@@ -129,6 +188,7 @@ module.exports = () => ({
         )
       ),
     },
+    */
     emo_list: {
       emo: emoList.map((emo, i) =>
         K.ATTR(
