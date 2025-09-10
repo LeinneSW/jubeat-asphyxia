@@ -2,10 +2,12 @@
     Recent play history with client-side pagination
 
 //DATA//
+    profiles: DB.Find(null, { collection: 'profile' })
     scores: DB.Find(null, { collection: 'score.history' })
 
 //- Helpers
 -
+    const profileMap = new Map(profiles.map(p => [p.__refid, p.name]))
     const seqLabel = (n) => (n === 0 ? 'BASIC' : n === 1 ? 'ADVANCED' : n === 2 ? 'EXTREME' : String(n))
     const modeLabel = (b) => (b ? 'HARD' : 'NORMAL')
     const getTime = (data) => {
@@ -46,8 +48,8 @@ section.section
                 table.table.is-striped.is-hoverable.is-fullwidth
                     thead
                         tr
-                            //th ID
                             th 이름
+                            th ID
                             th 제목
                             //th 판정
                             th 난이도
@@ -57,7 +59,7 @@ section.section
                     tbody
                         each s in sortedScores
                             tr.paginated-content(data-music-id=s.musicId)
-                                td 플레이어(준비중)
+                                td= profileMap.get(s.__refid) || '알 수 없음'
                                 td= s.musicId
                                 td.song-name 로딩중...
                                 //td= modeLabel(!!s.isHardMode)
