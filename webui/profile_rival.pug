@@ -4,8 +4,6 @@
 //DATA//
     profile: DB.FindOne(refid, {collection: 'profile'})
 
-link(rel="stylesheet" href="static/css/rival.css")
-
 section.section
     h3 라이벌 관리
 
@@ -29,18 +27,6 @@ section.section
     .box#rival-search-results(style="display:none;")
         p.has-text-weight-semibold 검색 결과
         ul#rival-results-list
-
-    // 수동 추가(옵션)
-    //details
-    //    summary 수동 JID 추가
-    //    form(method="post" action="/emit/rival_add" style="margin-top:8px;")
-    //        input(type="hidden" name="refid" value=refid)
-    //        .field
-    //            label.label 추가할 라이벌 JID
-    //            input.input(type="number" name="rival_jid" placeholder="상대 JID" required)
-    //        .field
-    //            button.button.is-primary(type="submit") 추가
-    //
     hr
 
     h4 등록된 라이벌
@@ -57,49 +43,47 @@ section.section
         p 등록된 라이벌이 없습니다.
 
 script.
-    (function(){
-        function renderResults(items){
-            var $box = $('#rival-search-results');
-            var $list = $('#rival-results-list');
-            $list.empty();
-            if(!items || !items.length){
-                $list.append($('<li>').text('검색 결과가 없습니다.'));
-            }else{
-                items.forEach(function(it){
-                    var $li = $('<li>');
-                    $li.text(it.name + ' (JID: ' + it.jubeatId + ') ');
-                    var $form = $('<form>', {
-                        method: 'post',
-                        action: '/emit/rival_add',
-                        style: 'display:inline;margin-left:8px;'
-                    });
-                    $form.append($('<input>', {type: 'hidden', name: 'refid', value: '#{refid}'}));
-                    $form.append($('<input>', {type: 'hidden', name: 'rival_jid', value: it.jubeatId}));
-                    $form.append($('<button>', {class: 'button is-primary is-small', type: 'submit', text: '추가'}));
-                    $li.append($form);
-                    $list.append($li);
+    function renderResults(items){
+        var $box = $('#rival-search-results');
+        var $list = $('#rival-results-list');
+        $list.empty();
+        if(!items || !items.length){
+            $list.append($('<li>').text('검색 결과가 없습니다.'));
+        }else{
+            items.forEach(function(it){
+                var $li = $('<li>');
+                $li.text(it.name + ' (JID: ' + it.jubeatId + ') ');
+                var $form = $('<form>', {
+                    method: 'post',
+                    action: '/emit/rival_add',
+                    style: 'display:inline;margin-left:8px;'
                 });
-            }
-            $box.show();
+                $form.append($('<input>', {type: 'hidden', name: 'refid', value: '#{refid}'}));
+                $form.append($('<input>', {type: 'hidden', name: 'rival_jid', value: it.jubeatId}));
+                $form.append($('<button>', {class: 'button is-primary is-small', type: 'submit', text: '추가'}));
+                $li.append($form);
+                $list.append($li);
+            });
         }
+        $box.show();
+    }
 
-        function doSearch(){
-            var q = $('#rival-search').val();
-            if(!q) return;
-            axios.post('/emit/rival_search', {jubeatId: '#{profile.jubeatId}', q: q})
-                .then(function(res){
-                    renderResults(res.data && res.data.results || []);
-                })
-                .catch(function(){
-                    renderResults([]);
-                });
+    function doSearch(){
+        var q = $('#rival-search').val();
+        if(!q) return;
+        axios.post('/emit/rival_search', {jubeatId: '#{profile.jubeatId}', q: q})
+            .then(function(res){
+                renderResults(res.data && res.data.results || []);
+            })
+            .catch(function(){
+                renderResults([]);
+            });
+    }
+
+    document.getElementById('rival-search-btn').addEventListener('click', doSearch);
+    document.getElementById('rival-search').addEventListener('keydown', (e) => {
+        if(e.key === 'Enter'){
+            e.preventDefault();
+            doSearch();
         }
-
-        $('#rival-search-btn').on('click', doSearch);
-        $('#rival-search').on('keydown', function(e){
-            if(e.key === 'Enter'){
-                e.preventDefault();
-                doSearch();
-            }
-        });
-    })();
+    })
