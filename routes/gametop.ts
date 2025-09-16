@@ -88,8 +88,8 @@ export const loadScoreRoute = async (_: EamuseInfo, data: any, send: EamuseSend)
 
     const scores = await DB.Find<Score>(profile.__refid!, {collection: 'score'});
     const scoreData: {
-        [musicId: number]: {
-            [isHardMode: number]: {
+        [musicId: string | number]: {
+            [isHardMode: string | number]: {
                 musicRate: number[];
                 score: number[];
                 clear: number[];
@@ -104,8 +104,8 @@ export const loadScoreRoute = async (_: EamuseInfo, data: any, send: EamuseSend)
 
     for(const score of scores){
         scoreData[score.musicId] ??= {};
-        if(!scoreData[score.musicId][+score.isHardMode]){
-            scoreData[score.musicId][+score.isHardMode] = {
+        if(!scoreData[score.musicId][score.isHardMode]){
+            scoreData[score.musicId][score.isHardMode] = {
                 musicRate: [0, 0, 0],
                 playCnt: [0, 0, 0],
                 clearCnt: [0, 0, 0],
@@ -117,7 +117,7 @@ export const loadScoreRoute = async (_: EamuseInfo, data: any, send: EamuseSend)
             };
         }
 
-        const data = scoreData[score.musicId][score.isHardMode ? 1 : 0];
+        const data = scoreData[score.musicId][score.isHardMode];
         data.musicRate[score.seq] = score.musicRate;
         data.playCnt[score.seq] = score.playCount;
         data.clearCnt[score.seq] = score.clearCount;
@@ -129,13 +129,10 @@ export const loadScoreRoute = async (_: EamuseInfo, data: any, send: EamuseSend)
     }
 
     const music: any[] = [];
-    for(const key in scoreData){
-        const musicId = +key;
+    for(const musicId in scoreData){
         for(const isHardMode in scoreData[musicId]){
-            const index = +isHardMode;
-            const difficulty = index === 0 ? 'normal' : 'hard';
-            const bar = scoreData[musicId][isHardMode].bar.map((bar, seq) => K.ARRAY('u8', bar || new Array(30).fill(0), {seq: String(seq)}))
-            music.push(K.ATTR({music_id: key}, {
+            const difficulty = +isHardMode === 0 ? 'normal' : 'hard';
+            music.push(K.ATTR({music_id: musicId}, {
                 [difficulty]: {
                     score: K.ARRAY('s32', scoreData[musicId][isHardMode].score),
                     clear: K.ARRAY('s8', scoreData[musicId][isHardMode].clear),
@@ -144,7 +141,8 @@ export const loadScoreRoute = async (_: EamuseInfo, data: any, send: EamuseSend)
                     clear_cnt: K.ARRAY('s32', scoreData[musicId][isHardMode].clearCnt),
                     fc_cnt: K.ARRAY('s32', scoreData[musicId][isHardMode].fcCnt),
                     ex_cnt: K.ARRAY('s32', scoreData[musicId][isHardMode].exCnt),
-                    bar,
+                    bar: scoreData[musicId][isHardMode].bar
+                        .map((bar, seq) => K.ARRAY('u8', bar || new Array(30).fill(0), {seq: String(seq)})),
                 },
             }));
         }
