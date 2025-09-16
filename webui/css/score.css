@@ -1,0 +1,26 @@
+.cell-bsc{
+    background-color: #E8F5E9; /* light green */
+    color: #2E7D32;            /* green text */
+    font-weight: 700;
+}
+.cell-adv{
+    background-color: #FFF8E1; /* light yellow */
+    color: #8D6E00;            /* dark yellow/brown text */
+    font-weight: 700;
+}
+.cell-ext{
+    background-color: #FFEBEE; /* light red */
+    color: #C62828;            /* red text */
+    font-weight: 700;
+}
+
+/* 점수 3칸 동일 너비 */
+col.col-score{
+    width: clamp(8rem, 10vw, 12rem);
+}
+
+/* 숫자 표시 가독성 */
+.cell-bsc, .cell-adv, .cell-ext{
+    white-space: nowrap;
+    text-align: right !important;
+}

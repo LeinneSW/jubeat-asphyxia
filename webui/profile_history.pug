@@ -25,23 +25,25 @@
     })
 
 section.section
-    .container
+    .container.is-fluid
         h1.title.is-4
             | 최근 플레이 이력
             if profile && profile.name
                 span.has-text-grey-light &nbsp;•&nbsp; #{profile.name}
-        .paginated-container(data-refid=refid, pagination-group="history")
+        .paginated-container(pagination-group="history")
             .level
                 .level-left
                     .level-item
-                        label.label 페이지당 갯수
+                        label(style="font-weight: bold") 항목 개수
                         input.input.page-size(type="number" min="1" value="20" style="width: 6rem; margin-left: .75rem;")
                 .level-right
-                    .level-item
-                        nav.pagination(role="navigation" aria-label="pagination" style="display:none")
-                            a.pagination-previous 이전
-                            a.pagination-next 다음
-                            ul.pagination-list
+                    .level-item.pagination-controls(style="display:none")
+                        button.button.pagination-previous 이전
+                        .pagination-info(style="margin: 0 0.75rem; display: flex; align-items: center;")
+                            input.input.current-page(type="text", style="width: 4rem; text-align: center;")
+                            span &nbsp;/&nbsp;
+                            span.total-pages
+                        button.button.pagination-next 다음
 
             .table-container
                 table.table.is-striped.is-hoverable.is-fullwidth
@@ -58,145 +60,19 @@ section.section
                         each s in sortedScores
                             tr.paginated-content(data-music-id=s.musicId)
                                 td= s.musicId
-                                td.song-name 로딩중...
+                                td.song-name
                                 //td= modeLabel(!!s.isHardMode)
                                 td= seqLabel(Number(s.seq))
                                 td= s.score.toLocaleString('ko-KR')
                                 td= (s.musicRate / 10) + '%'
                                 td= getTime(s)
-
             // 하단 페이지네이션 바
-            nav.pagination(role="navigation" aria-label="pagination" style="display:none")
-                a.pagination-previous 이전
-                a.pagination-next 다음
-                ul.pagination-list
+            .pagination-controls.is-flex.is-justify-content-center(style="margin-top: 1.5rem; display:none;")
+                button.button.pagination-previous 이전
+                .pagination-info(style="margin: 0 0.75rem; display: flex; align-items: center;")
+                    input.input.current-page(type="text", style="width: 4rem; text-align: center;")
+                    span &nbsp;/&nbsp;
+                    span.total-pages
+                button.button.pagination-next 다음
 
-script.
-    (function(){
-        function setupContainer(container){
-            const pageSizeInput = container.querySelector('input.page-size');
-            const paginations = container.querySelectorAll('nav.pagination');
-            const rows = Array.from(container.querySelectorAll('tr.paginated-content'));
-            const listUls = Array.from(container.querySelectorAll('nav.pagination ul.pagination-list'));
-            const prevBtns = Array.from(container.querySelectorAll('nav.pagination a.pagination-previous'));
-            const nextBtns = Array.from(container.querySelectorAll('nav.pagination a.pagination-next'));
-
-            let state = {page: 0, pageSize: Math.max(+pageSizeInput.value || 0, 1), pageCount: 1};
-
-            function applyVisibility(){
-                const start = state.page * state.pageSize;
-                const end = start + state.pageSize;
-                rows.forEach((tr, i) => {
-                    tr.style.display = (i >= start && i < end) ? '' : 'none';
-                });
-            }
-
-            function rebuildPagination(){
-                state.pageCount = Math.max(Math.ceil(rows.length / state.pageSize), 1);
-
-                // 토글 표시
-                paginations.forEach(p => p.style.display = state.pageCount > 1 ? 'flex' : 'none');
-
-                // 버튼 새로 그림
-                listUls.forEach(ul => {
-                    ul.style.margin = '0';
-                    ul.style.listStyle = 'none';
-                    ul.style.paddingLeft = '0';
-
-                    ul.innerHTML = '';
-                    for(let i = 0; i < state.pageCount; i++){
-                        const li = document.createElement('li');
-                        li.style.margin = '0';
-                        li.setAttribute('data-page', String(i));
-                        const a = document.createElement('a');
-                        a.className = 'pagination-link';
-                        a.textContent = String(i + 1);
-                        li.appendChild(a);
-                        if(i === state.page){
-                            li.classList.add('is-active');
-                            a.classList.add('is-current');
-                        }
-                        li.addEventListener('click', () => goToPage(i));
-                        ul.appendChild(li);
-                    }
-                });
-
-                // prev/next 바인딩
-                prevBtns.forEach(btn => {
-                    btn.onclick = () => {
-                        if(state.page > 0) goToPage(state.page - 1);
-                    };
-                });
-                nextBtns.forEach(btn => {
-                    btn.onclick = () => {
-                        if(state.page < state.pageCount - 1) goToPage(state.page + 1);
-                    };
-                });
-
-                // 버튼 활성/비활성
-                prevBtns.forEach(btn => state.page === 0 ? btn.setAttribute('disabled', '') : btn.removeAttribute('disabled'));
-                nextBtns.forEach(btn => state.page >= state.pageCount - 1 ? btn.setAttribute('disabled', '') : btn.removeAttribute('disabled'));
-            }
-
-            function updateActiveButtons(){
-                listUls.forEach(ul => {
-                    Array.from(ul.children).forEach(li => {
-                        const p = parseInt(li.getAttribute('data-page') || '0', 10);
-                        if(p === state.page){
-                            li.classList.add('is-active');
-                            li.querySelector('a')?.classList.add('is-current');
-                        }else{
-                            li.classList.remove('is-active');
-                            li.querySelector('a')?.classList.remove('is-current');
-                        }
-                    });
-                });
-                // prev/next 활성화 상태 갱신
-                const atFirst = state.page === 0;
-                const atLast = state.page >= state.pageCount - 1;
-                prevBtns.forEach(btn => atFirst ? btn.setAttribute('disabled', '') : btn.removeAttribute('disabled'));
-                nextBtns.forEach(btn => atLast ? btn.setAttribute('disabled', '') : btn.removeAttribute('disabled'));
-            }
-
-            function goToPage(p){
-                state.page = Math.min(Math.max(p, 0), state.pageCount - 1);
-                applyVisibility();
-                updateActiveButtons();
-            }
-
-            function refreshAll(){
-                // 페이지 범위 보정
-                state.page = Math.min(state.page, state.pageCount - 1);
-                rebuildPagination();
-                applyVisibility();
-                updateActiveButtons();
-            }
-
-            // 초기화
-            refreshAll();
-
-            // 페이지당 갯수 변경
-            if(pageSizeInput){
-                pageSizeInput.addEventListener('change', () => {
-                    state.pageSize = Math.max(+pageSizeInput.value || 0, 1);
-                    refreshAll();
-                });
-            }
-
-            // 리사이즈 등에서 행 수가 변하지 않으므로 별도 옵저버는 생략
-        }
-
-        document.addEventListener('DOMContentLoaded', function(){
-            document.querySelectorAll('.paginated-container').forEach(setupContainer);
-
-            fetch('static/resources/music_info.json').then(async r => {
-                const musicData = await r.json();
-                musicData && document.querySelectorAll('tr.paginated-content').forEach(tr => {
-                    const id = tr.getAttribute('data-music-id');
-                    const name = musicData[id]?.name || `알 수 없음(${id})`;
-                    const el = tr.querySelector('.song-name');
-                    if(el) el.textContent = name;
-                });
-            })
-        });
-    })();
+script(src = "static/js/score.js")
