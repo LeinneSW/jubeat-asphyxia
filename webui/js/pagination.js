@@ -79,15 +79,16 @@ function setupContainer(container){
     });
 
     // 페이지당 개수 변경
-    if(pageSizeInput){
-        pageSizeInput.addEventListener('change', () => {
-            const oldSize = state.pageSize;
-            const newSize = Math.max(+pageSizeInput.value || 0, 1);
-            state.pageSize = newSize;
-            state.page = Math.floor(state.page * oldSize / newSize);
-            refreshAll();
-        });
-    }
+    pageSizeInput.addEventListener('keydown', (event) => {
+        if(event.key !== 'Enter') return;
+
+        event.preventDefault();
+        const oldSize = state.pageSize;
+        const newSize = Math.max(+pageSizeInput.value || 20, 1);
+        state.pageSize = newSize;
+        state.page = Math.floor(state.page * oldSize / newSize);
+        refreshAll();
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function(){
