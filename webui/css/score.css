@@ -16,7 +16,7 @@
 
 /* 점수 3칸 동일 너비 */
 col.col-score{
-    width: clamp(8rem, 10vw, 12rem);
+    width: 8rem;
 }
 
 /* 숫자 표시 가독성 */
