@@ -52,7 +52,7 @@ export const searchRival = async (data: any, send: WebUISend) => {
 
     // 자기 자신 제외
     // 이름 부분일치(대소문자 무시) + 숫자 입력 시 JID 정확히 일치도 허용
-    return send.json({
+    send.json({
         results: candidates
             .filter(p => (p.name.includes(qRaw) || p.jubeatId === Number(qRaw)) && p.jubeatId !== jubeatId)
             .map(p => ({
