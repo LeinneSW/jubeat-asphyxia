@@ -25,7 +25,6 @@ function setupContainer(container){
             control.style.display = state.pageCount > 1 ? 'flex' : 'none';
         });
 
-        debugger
         currentPageElements.forEach(input => {
             if(input.tagName === 'INPUT'){
                 input.value = state.page + 1;
