@@ -3,6 +3,7 @@ import {loadProfileRoute, getInfo, loadScoreRoute, getMeetingRoute, getJBoxListR
 import {saveProfileRoute}                                            from "./routes/gameend";
 import {lobbyCheckRoute, lobbyEntryRoute, refreshRoute, reportRoute} from "./routes/lobby";
 import {addRival, removeRival, searchRival} from "./handlers/rival";
+import {getScoreRoute}                                                                              from "./handlers/score";
 
 export async function register() {
     if(CORE_VERSION_MAJOR <= 1 && CORE_VERSION_MINOR < 31){
@@ -63,6 +64,8 @@ export async function register() {
     R.WebUIEvent('rival_add', addRival);
     R.WebUIEvent('rival_remove', removeRival);
     R.WebUIEvent('rival_search', searchRival);
+
+    R.WebUIEvent('get_scores', getScoreRoute);
 
     R.Unhandled();
 }

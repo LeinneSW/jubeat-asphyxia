@@ -88,6 +88,11 @@ function setupContainer(container){
         state.page = Math.floor(state.page * oldSize / newSize);
         refreshAll();
     });
+
+    const observer = new MutationObserver((mutationsList, observer) => {
+        // TODO: checking the table change for pagination
+    });
+    observer.observe(container, {childList: true, subtree: true});
 }
 
 document.addEventListener('DOMContentLoaded', function(){
