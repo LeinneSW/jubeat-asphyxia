@@ -67,7 +67,6 @@ function setupContainer(container){
         updateTablePagination();
     });
 
-    updateTablePagination();
     const observer = new MutationObserver(() => {
         if(updateSelf){
             updateSelf = false;
@@ -76,6 +75,7 @@ function setupContainer(container){
         updateTablePagination();
     });
     observer.observe(container, {childList: true, subtree: true});
+    updateTablePagination();
 }
 
 document.addEventListener('DOMContentLoaded', function(){
