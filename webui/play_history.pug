@@ -8,8 +8,7 @@
 //- Helpers
 -
     const profileMap = new Map(profiles.map(p => [p.__refid, p.name]))
-    const seqLabel = (n) => (n === 0 ? 'BASIC' : n === 1 ? 'ADVANCED' : n === 2 ? 'EXTREME' : String(n))
-    const modeLabel = (b) => (b ? 'HARD' : 'NORMAL')
+    const seqLabel = (n) => (n === 0 ? 'BASIC' : n === 1 ? 'ADVANCED' : 'EXTREME')
     const getTime = (data) => {
         const date = data.updatedAt || data.createdAt
         const y = date.getFullYear()
@@ -25,55 +24,62 @@
         return (b.updatedAt || b.createdAt).getTime() - (a.updatedAt || a.createdAt).getTime();
     })
 
-section.section
-    .container
-        h1.title.is-4 서버 내 플레이 이력
-        .paginated-container
-            .level
-                .level-left
-                    .level-item
-                        label(style="font-weight: bold") 항목 개수
-                        input.input.page-size(type="number" min="1" value="20" style="width: 6rem; margin-left: .75rem;")
-                .level-right
-                    .level-item.pagination-controls(style="display:none")
-                        button.button.pagination-previous 이전
-                        .pagination-info(style="margin: 0 0.75rem; display: flex; align-items: center;")
-                            input.input.current-page(type="text", style="width: 4rem; text-align: center;")
-                            span &nbsp;/&nbsp;
-                            span.total-pages
-                        button.button.pagination-next 다음
+style.
+    /* 하드 모드 행 강조 */
+    .hard-mode-row:nth-child(odd) td{
+        background-color: #ffe5e8 !important; /* 밝은 핑크 */
+    }
+    .hard-mode-row:nth-child(even) td{
+        background-color: #ffd9dd !important; /* 짝수행은 톤만 살짝 다르게 */
+    }
+    .hard-mode-row:hover td{
+        background-color: #ffcfd5 !important; /* 호버 시 조금 진하게 */
+    }
 
-            .table-container
-                table.table.is-striped.is-hoverable.is-fullwidth
-                    thead
-                        tr
-                            th 이름
-                            th ID
-                            th 제목
-                            //th 판정
-                            th 난이도
-                            th 점수
-                            th rate
-                            th 시간
-                    tbody
-                        each s in sortedScores
-                            tr.paginated-content(data-music-id=s.musicId)
-                                td= profileMap.get(s.__refid) || '알 수 없음'
-                                td= s.musicId
-                                td.song-name 로딩중...
-                                //td= modeLabel(!!s.isHardMode)
-                                td= seqLabel(Number(s.seq))
-                                td= s.score.toLocaleString('ko-KR')
-                                td= (s.musicRate / 10) + '%'
-                                td= getTime(s)
-            // 하단 페이지네이션 바
-            .pagination-controls.is-flex.is-justify-content-center(style="margin-top: 1.5rem; display:none;")
-                button.button.pagination-previous 이전
-                .pagination-info(style="margin: 0 0.75rem; display: flex; align-items: center;")
-                    input.input.current-page(type="text", style="width: 4rem; text-align: center;")
-                    span &nbsp;/&nbsp;
-                    span.total-pages
-                button.button.pagination-next 다음
+.container.is-fluid
+    h1.title.is-4 서버 내 플레이 이력
+    .paginated-container
+        .level
+            .level-left
+                .level-item
+                    label(style="font-weight: bold") 항목 개수
+                    input.input.page-size(type="number" min="1" value="20" style="width: 6rem; margin-left: .75rem;")
+            .level-right
+                .level-item.pagination-controls
+                    button.button.pagination-previous 이전
+                    .pagination-info(style="margin: 0 0.75rem; display: flex; align-items: center;")
+                        input.input.current-page(type="text", style="width: 4rem; text-align: center;")
+                        span &nbsp;/&nbsp;
+                        span.total-pages
+                    button.button.pagination-next 다음
+
+        .table-container
+            table.table.is-striped.is-hoverable.is-fullwidth
+                thead
+                    tr
+                        th 플레이어
+                        th 곡 정보
+                        th 난이도
+                        th 점수
+                        th rate
+                        th 시간
+                tbody
+                    each s in sortedScores
+                        tr.paginated-content(class={'hard-mode-row': s.isHardMode}, data-music-id=s.musicId, data-seq=s.seq)
+                            td= profileMap.get(s.__refid) || '알 수 없음'
+                            td.song-name 로딩중...
+                            td= seqLabel(s.seq)
+                            td= s.score.toLocaleString('ko-KR')
+                            td= (s.musicRate / 10) + '%'
+                            td= getTime(s)
+        // 하단 페이지네이션 바
+        .pagination-controls.is-flex.is-justify-content-center(style="margin-top: 1.5rem;")
+            button.button.pagination-previous 이전
+            .pagination-info(style="margin: 0 0.75rem; display: flex; align-items: center;")
+                input.input.current-page(type="text", style="width: 4rem; text-align: center;")
+                span &nbsp;/&nbsp;
+                span.total-pages
+            button.button.pagination-next 다음
 
 script(src = "static/js/music.js")
 script(src = "static/js/pagination.js")
