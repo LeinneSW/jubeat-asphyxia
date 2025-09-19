@@ -21,7 +21,6 @@ function renderTable(){
         const musicId = (scoreData[0] || scoreData[1] || scoreData[2]).musicId;
         const html = `
             <tr class="paginated-content">
-                <td style="width: 5em">${musicId}</td>
                 <td class="song-name">${musicData[musicId]?.name || `알 수 없음(${musicId})`}</td>
                 <td class="cell-bsc">${scoreData[0]?.score.toLocaleString('ko-KR') || '-'}</td>
                 <td class="cell-adv">${scoreData[1]?.score.toLocaleString('ko-KR') || '-'}</td>

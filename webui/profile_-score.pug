@@ -8,18 +8,6 @@
 -
     const seqLabel = (n) => (n === 0 ? 'BASIC' : n === 1 ? 'ADVANCED' : n === 2 ? 'EXTREME' : String(n))
     const modeLabel = (b) => (b ? 'HARD' : 'NORMAL')
-    // 표시에 사용할 문자열
-    const formatDate = (data) => {
-        const date = data.updatedAt || data.createdAt
-        const y = date.getFullYear()
-        const m = String(date.getMonth() + 1).padStart(2, '0')
-        const day = String(date.getDate()).padStart(2, '0')
-        const h24 = date.getHours()
-        const ap = h24 < 12 ? '오전' : '오후'
-        const h12 = (h24 % 12) || 12
-        const mi = String(date.getMinutes()).padStart(2, '0')
-        return `${y}-${m}-${day} ${ap} ${h12}:${mi}`
-    }
 
 link(rel="stylesheet" href="static/css/score.css")
 
@@ -44,14 +32,12 @@ link(rel="stylesheet" href="static/css/score.css")
         .table-container
             table.table.is-striped.is-hoverable.is-fullwidth
                 colgroup
-                    col(style="width: 1em")
                     col
                     col.col-score
                     col.col-score
                     col.col-score
                 thead
                     tr
-                        th.sortable(data-sort-type="musicId") ID
                         th.sortable(data-sort-type="name") 이름
                         th.sortable(data-sort-type="bsc") BASIC
                         th.sortable(data-sort-type="adv") ADVANCED
