@@ -43,25 +43,18 @@ function setupContainer(container){
     allNextBtns.forEach(btn => btn.onclick = () => state.page < state.pageCount - 1 && goToPage(state.page + 1));
     currentPageElements.forEach(input => {
         if(input.tagName !== 'INPUT') return;
-        input.addEventListener('keydown', (event) => {
-            if(event.key !== 'Enter') return;
-
-            event.preventDefault();
-            const page = parseInt(input.value);
-            if(!isNaN(page) && page > 0 && page <= state.contentSize){
+        input.addEventListener('change', () => {
+            const page = +input.value;
+            if(Number.isFinite(page) && 0 < page && page <= state.contentSize){
                 goToPage(page - 1);
-            }else{
-                alert(`올바른 숫자를 작성해주세요. (1 ~ ${state.pageCount})`);
-                input.value = state.page + 1;
             }
         });
     });
-    pageSizeInput.addEventListener('keydown', (event) => {
-        if(event.key !== 'Enter') return;
+    pageSizeInput.addEventListener('change', () => {
+        const newSize = +pageSizeInput.value
+        if(!Number.isFinite(newSize) || newSize < 1) return;
 
-        event.preventDefault();
         const oldSize = state.contentSize;
-        const newSize = Math.max(+pageSizeInput.value || 20, 1);
         state.contentSize = newSize;
         state.page = Math.floor(state.page * oldSize / newSize);
         updateTablePagination();
