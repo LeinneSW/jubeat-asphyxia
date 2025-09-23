@@ -7,16 +7,20 @@ export const getScoreRoute = async (data: any, send: WebUISend) => {
 
     const scores = await DB.Find<Score>(refid, {collection: "score"});
 
-    const newScores = {};
+    const hard = {};
+    const normal = {};
     for(const scoreData of scores){
-        if(scoreData.isHardMode) continue;
-        newScores[scoreData.musicId] ??= [];
+        const dataObject = scoreData.isHardMode ? hard : normal;
+        dataObject[scoreData.musicId] ??= [];
         if(
-            !newScores[scoreData.musicId][scoreData.seq] ||
-            newScores[scoreData.musicId][scoreData.seq].score < scoreData.score
+            !dataObject[scoreData.musicId][scoreData.seq] ||
+            dataObject[scoreData.musicId][scoreData.seq].score < scoreData.score
         ){
-            newScores[scoreData.musicId][scoreData.seq] = scoreData
+            dataObject[scoreData.musicId][scoreData.seq] = scoreData
         }
     }
-    send.json(Object.values(newScores));
+    send.json({
+        hard: Object.values(hard),
+        normal: Object.values(normal),
+    });
 };

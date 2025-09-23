@@ -33,7 +33,7 @@ function renderTable(){
 
 document.addEventListener('DOMContentLoaded', async () => {
     let r = await emit('get_scores', {refid});
-    scores = r.data;
+    scores = r.data.normal;
     sortedScores = [...scores]
     r = await fetch('static/resources/music_info.json')
     musicData = await r.json();
